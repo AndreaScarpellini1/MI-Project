@@ -1,9 +1,9 @@
 clc
-clear 
+clear all
 close all 
 
 %% Visualizzazione dei dati 
-
+load MRIdata.mat
 
 figure()
 for i=1:length(vol(1,1,:))
