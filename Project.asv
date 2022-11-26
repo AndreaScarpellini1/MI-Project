@@ -1,47 +1,30 @@
 clc
 clear
 close all 
-%% Animation on: a=1 Animation off: a=0;
-a=0;
+
 %% Visualizzazione dei dati 
 load MRIdata.mat
 cmap = colormap('jet');
 
-if (a==1)
-    figure()
-    for i=1:length(vol(1,1,:))
-        subplot(2,1,1)
-           imshow(vol(:,:,i))
-           colorbar
-           title("MRI iniziale.")
-        subplot(2,1,2)
-           imshow(vol(:,:,i),'Colormap', cmap)
-           colorbar
-           title("MRI colored")
-           pause(0.01)
-    end 
-end
-
-figure()
-imshow(vol(:,:,90))
-
-%% Binarize image
-for i=1:length(vol(1,1,:))
-    bin_vol(:,:,i) = imbinarize(vol(:,:,i));
-end
-%%
 figure()
 for i=1:length(vol(1,1,:))
-    imshow(bin_vol(:,:,i))
-    pause(0.01)
-end
+    subplot(2,1,1)
+       imshow(vol(:,:,i))
+       colorbar
+       title("MRI iniziale.")
+    subplot(2,1,2)
+       imshow(vol(:,:,i),'Colormap', cmap)
+       colorbar
+       title("MRI colored")
+       pause(0.01)
+end 
 %%
-figure()
-imshow(fant_pet_bin)
+% Calculate maximum intensity value of the image
+I_max = max(max(max(vol)));
+
 % Binarize the image using as threshold half of the maximum
-%%
-imcontour(fant_pet_bin, 1, 'm');
-
+    vol_cont(:,:,i) = imcontour(vol(:,:,i), I_max, 'm');
+end 
 %%
 figure()
 for i=1:length(vol(1,1,:))
