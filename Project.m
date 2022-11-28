@@ -4,9 +4,9 @@ close all
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
 a=1;
-%% Visualizzazione dei dati 
+%% dati 
 load MRIdata.mat
-
+%% Segmentation and AMOUNT AXIAL PIXEL
 if (a==0)
     figure(1)
         montage(vol)
@@ -15,14 +15,6 @@ if (a==0)
         montage(vol(:,:,64:90))
         title('Tumor From slice 64 to 90.')
 end 
-
-
-%% SEGMENTATION:
-%The goal of image segmentation is to divide an image into a set of 
-% semantically meaningful,homogeneous,nonoverlapping 
-% regions of similar attributes such as intensity, depth, color, or
-% texture. The segmentation result is either an image of labels identifying each 
-% homogeneous region or a set ofcontours which describe the region boundaries.
 
 figure()
 subplot(2,1,1)
@@ -77,6 +69,12 @@ for i=2:26
 end 
 title("Contours of the tumor")
 
+% area of the binarized image 
+Axial_num_pixel=0;
+for i=2:26
+    Axial_num_pixel=Axial_num_pixel+sum(sum(bin_vol(:,:,i)==1)); %conta i pixel bianchi 
+end 
+%%
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
 %% 3. Segment the lesion and calculate the respective cross-sectional area over sagittal slice number 135 4. Identify sagittal slices that contain the lesion and extend the quantification of its cross-sectional area to the whole volume. Try to repeat this process across axial slices. What are the main challenges of segmenting this lesion with respect to other cerebral tissues and orthogonal views?
