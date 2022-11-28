@@ -22,8 +22,13 @@ if (a==1)
     end 
 end
 
+%% crop
 figure()
-imshow(vol(:,:,63))
+imshow(vol(:,:,90))
+
+for i = 1:(90-)
+    img(i) = imcrop(vol(:,:,64+i),[130 90 60 60])
+end
 
 %% Binarize image
 for i=1:length(vol(1,1,:))

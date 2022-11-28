@@ -22,8 +22,17 @@ if (a==1)
     end 
 end
 
+%% crop
 figure()
 imshow(vol(:,:,90))
+
+
+for i = 1:(90-64)
+    img(:,:,i) = imcrop(vol(:,:,64+i),[140 85 55 55]);
+end
+montage(img)
+
+% da vedere le misure
 
 %% Binarize image
 for i=1:length(vol(1,1,:))
