@@ -1,0 +1,25 @@
+clear all close all clc
+%% import data
+load MRIdata.mat 
+
+for i=1:length(vol(1,1,:))
+    for j=1:length(vol(1,:,1))
+        for z=1:length(vol(:,1,1))
+            data_img(z,j,i)=double(vol(z,j,i));
+        end
+    end
+end
+
+%% display images
+cmap=colormap("gray");
+
+figure
+montage(vol,cmap)
+
+figure
+subplot(1,2,1)
+mesh(data_img(:,:,74)), axis tight, title('Original image rendering - Mesh')
+colorbar
+subplot(1,2,2)
+surf(data_img(:,:,74)), axis tight, title('Original image rendering - Surface'), shading flat
+colorbar
