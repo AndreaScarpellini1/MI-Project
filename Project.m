@@ -7,61 +7,7 @@ a=1;
 %% Visualizzazione dei dati 
 load MRIdata.mat
 
-if (a==1)
-    figure()
-    for i=1:length(vol(1,1,:))
-        subplot(2,1,1)
-           imshow(vol(:,:,i))
-           colorbar
-           title("MRI iniziale.")
-        subplot(2,1,2)
-           imshow(vol(:,:,i),'Colormap', cmap)
-           colorbar
-           title("MRI colored")
-           pause(0.01)
-    end 
-end
-
-%% crop
-figure()
-imshow(vol(:,:,90))
-
-clear img
-for i = 1:(90-64)
-    img(:,:,i) = imcrop(vol(:,:,64+i),[140 100 40 40]);
-end
-montage(img)
-
-% da vedere le misure
-
-%% Binarize image
-for i=1:length(vol(1,1,:))
-    bin_vol(:,:,i) = imbinarize(vol(:,:,i));
-end
-%%
-figure()
-for i=1:length(vol(1,1,:))
-    imshow(bin_vol(:,:,i))
-    pause(0.01)
-end
-%%
-figure()
-imshow(fant_pet_bin)
-% Binarize the image using as threshold half of the maximum
-%%
-imcontour(fant_pet_bin, 1, 'm');
-
-%%
-figure()
-for i=1:length(vol(1,1,:))
-       imshow(vol_cont(:,:,i))
-       title("MRI binarized.")
-       pause(0.01)
-end
-
-%% 1. Briefly review the topic of tissue and lesion segmentation over MRI images
-
-if (a==1)
+if (a==0)
     figure(1)
         montage(vol)
         title("MRI iniziale.")
@@ -69,7 +15,6 @@ if (a==1)
         montage(vol(:,:,64:90))
         title('Tumor From slice 64 to 90.')
 end 
-
 
 
 %% SEGMENTATION:
@@ -131,7 +76,7 @@ for i=2:26
     pause (1)
 end 
 title("Contours of the tumor")
-%%
+
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
 %% 3. Segment the lesion and calculate the respective cross-sectional area over sagittal slice number 135 4. Identify sagittal slices that contain the lesion and extend the quantification of its cross-sectional area to the whole volume. Try to repeat this process across axial slices. What are the main challenges of segmenting this lesion with respect to other cerebral tissues and orthogonal views?
