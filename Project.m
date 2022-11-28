@@ -1,13 +1,67 @@
 clc
 clear
 close all 
-cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
+%cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
 a=1;
 %% Visualizzazione dei dati 
 load MRIdata.mat
 
-if (a==0)
+if (a==1)
+    figure()
+    for i=1:length(vol(1,1,:))
+        subplot(2,1,1)
+           imshow(vol(:,:,i))
+           colorbar
+           title("MRI iniziale.")
+        subplot(2,1,2)
+           imshow(vol(:,:,i),'Colormap', cmap)
+           colorbar
+           title("MRI colored")
+           pause(0.01)
+    end 
+end
+
+%% crop
+figure()
+imshow(vol(:,:,90))
+
+clear img
+for i = 1:(90-64)
+    img(:,:,i) = imcrop(vol(:,:,64+i),[140 100 40 40]);
+end
+montage(img)
+
+% da vedere le misure
+
+%% Binarize image
+for i=1:length(vol(1,1,:))
+    bin_vol(:,:,i) = imbinarize(vol(:,:,i));
+end
+%%
+figure()
+for i=1:length(vol(1,1,:))
+    imshow(bin_vol(:,:,i))
+    pause(0.01)
+end
+%%
+figure()
+imshow(fant_pet_bin)
+% Binarize the image using as threshold half of the maximum
+%%
+imcontour(fant_pet_bin, 1, 'm');
+
+%%
+figure()
+for i=1:length(vol(1,1,:))
+       imshow(vol_cont(:,:,i))
+       title("MRI binarized.")
+       pause(0.01)
+end
+
+%% 1. Briefly review the topic of tissue and lesion segmentation over MRI images
+
+if (a==1)
     figure(1)
         montage(vol)
         title("MRI iniziale.")
@@ -15,6 +69,7 @@ if (a==0)
         montage(vol(:,:,64:90))
         title('Tumor From slice 64 to 90.')
 end 
+
 
 
 %% SEGMENTATION:
@@ -51,6 +106,12 @@ for i=v3
     j=j+1;
     vol_imadjust(:,:,j) = imadjust(vol(v1,v2,i));
 end 
+
+%salt & pepper filtering
+for i=1:length(v3)
+    vol_imadjust(:,:,i)=medfilt2(vol_imadjust(:,:,i), [5 5]);
+end
+
 %Binarizzazione 
 bin_vol=imbinarize(vol_imadjust,0.4);
 
