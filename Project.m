@@ -49,6 +49,7 @@ for i=1:length(vol(1,1,:))
        title("MRI binarized.")
        pause(0.01)
 end
+
 %% 1. Briefly review the topic of tissue and lesion segmentation over MRI images
 
 
