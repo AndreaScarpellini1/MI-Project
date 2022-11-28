@@ -70,7 +70,7 @@ for i=2:26
     pause (1)
 end 
 title("Contours of the tumor")
-
+%%
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
 %% 3. Segment the lesion and calculate the respective cross-sectional area over sagittal slice number 135 4. Identify sagittal slices that contain the lesion and extend the quantification of its cross-sectional area to the whole volume. Try to repeat this process across axial slices. What are the main challenges of segmenting this lesion with respect to other cerebral tissues and orthogonal views?
