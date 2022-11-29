@@ -83,6 +83,7 @@ for i=1:dim(1)
     vol_ax(:,:,i)=vol(i,:,:);
 end
 
+clear vol_imadjust
 %display images
 if (a==0)
     figure(1)
@@ -92,7 +93,7 @@ if (a==0)
         montage(vol_ax(:,:,107:144))
         title('Tumor From slice 107 to 144.')
 end 
-[Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [60 140 32 40]);
+[Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [55 135 35 60]);
 
 % Dimensioni del taglio 
 v1=round(d_ax(2)):(round(d_ax(2))+length(Cropped_vol_ax(:,1)));
