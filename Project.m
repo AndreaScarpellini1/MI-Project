@@ -140,6 +140,7 @@ Axial_num_pixel=0;
 for i=2:26
     Axial_num_pixel=Axial_num_pixel+sum(sum(bin_vol(:,:,i)==1)); %conta i pixel bianchi 
 end 
+
 %%
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
@@ -205,5 +206,20 @@ for i=2:26
 end 
 title("Contours of the tumor")
 %% 5. Add noise to the original dataset and check the performances of your implemented workflow with respect to different levels of noise.
+rand_IM = rand(256,256);
+figure, 
+imshow(rand_IM)
+title('additional noise')
+
+rum = double(vol(:,:,:))./255+rand_IM;
+rum_sc = rescale(rum(:,:,:),0,1);
+
+figure, 
+subplot(1,2,1)
+imshow(vol(:,:,75)) % uint8 da 0 a 255
+title('original image')
+subplot(1,2,2)
+imshow(rum_sc(:,:,75)) % double da 0 a 1
+title('image with additional noise')
 
 %% 6. [Optional] manually segment the lesion starting from sagittal slice number 135, hence quantify segmentation performances in terms of sensitivity, specificity and Dice coefficient.
