@@ -44,10 +44,6 @@ for i=v3
     vol_imadjust(:,:,j) = imadjust(vol(v1,v2,i));
 end 
 
-
-
-
-
 %salt & pepper filtering
 for i=1:length(v3)
     vol_imadjust(:,:,i)=medfilt2(vol_imadjust(:,:,i), [5 5]);
@@ -125,7 +121,7 @@ for i=1:length(v3)
 end
 
 %Binarizzazione 
-bin_vol=imbinarize(vol_imadjust,0.4);
+bin_vol=imbinarize(vol_imadjust,0.6);
 
 figure()
 subplot(1,2,1)
@@ -157,7 +153,9 @@ subplot(1,2,1)
 imshow(vol(:,:,75)) % uint8 da 0 a 255
 title('original image')
 subplot(1,2,2)
-imshow(rum_ad(:,:,75)) % double da 0 a 1
+imshow(rum_sc(:,:,75)) % double da 0 a 1
 title('image with additional noise')
 
 %% 6. [Optional] manually segment the lesion starting from sagittal slice number 135, hence quantify segmentation performances in terms of sensitivity, specificity and Dice coefficient.
+save("img.tif",vol(:,:,75))
+H=imfreehand(vol(:,:,75),[])
