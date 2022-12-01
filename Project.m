@@ -121,7 +121,7 @@ for i=1:length(v3)
 end
 
 %Binarizzazione 
-bin_vol=imbinarize(vol_imadjust,0.4);
+bin_vol=imbinarize(vol_imadjust,0.6);
 
 figure()
 subplot(1,2,1)
