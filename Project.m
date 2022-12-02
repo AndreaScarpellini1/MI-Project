@@ -22,7 +22,7 @@ imshow(vol(:,:,75))
 impixelinfo
 title("Isolate the tumor")
 subplot(2,1,2)
-[Cropped_vol d]= imcrop(vol(:,:,75));
+[Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]);
 
 % Dimensioni del taglio 
 v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
