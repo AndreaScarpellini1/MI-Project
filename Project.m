@@ -117,8 +117,8 @@ title("AFTER BIN")
 
 %% Prendo i contorni 
 
-vidfile = VideoWriter('testmovie.mp4','MPEG-4');
-open(vidfile);
+%vidfile = VideoWriter('testmovie.mp4','MPEG-4');
+%open(vidfile);
 figure()
 j=0;
 for i=2:26
@@ -127,11 +127,11 @@ for i=2:26
     title("Contour of the tumor")
     hold on
     imcontour(bin_vol(:,:,i),5,'m');
-    F(j) = getframe(gcf); 
-    writeVideo(vidfile,F(j));
+    %F(j) = getframe(gcf); 
+    %writeVideo(vidfile,F(j));
     pause (1)
 end 
-close(vidfile)
+%close(vidfile)
 
 
 %%
@@ -152,7 +152,7 @@ end
 
 clear vol_imadjust
 %display images
-if (a==0)
+if (a==1)
     figure(1)
         montage(vol_ax)
         title("MRI Sagittale.")
@@ -160,45 +160,82 @@ if (a==0)
         montage(vol_ax(:,:,107:144))
         title('Tumor From slice 107 to 144.')
 end 
-[Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [55 135 35 60]);
 
+%%
+[Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [60 116 30 60]);
+%55 135 35 60
 % Dimensioni del taglio 
 v1=round(d_ax(2)):(round(d_ax(2))+length(Cropped_vol_ax(:,1)));
 v2=round(d_ax(1)):(round(d_ax(1))+length(Cropped_vol_ax(1,:)));
 v3=107:144;
 
+VOI_ax=vol_ax(v1,v2,v3);
 figure()
-subplot(2,1,1)
-imshow(vol_ax(v1,v2,126));
-title('Immagine ricavata dalle dimensioni')
-subplot(2,1,2)
-title('Immagine ricavata dalla funzione')
-imshow(Cropped_vol_ax)
+    montage(VOI_ax)
 
-%Aumento del contrasto
-j=0;
-for i=v3
-    j=j+1;
-    vol_imadjust(:,:,j) = imadjust(vol_ax(v1,v2,i));
-end 
+%% Istogramma 
+figure('Name', "Istogrammi")
+for i=1:size(VOI_ax,3)
+    subplot(2,1,1)
+    imshow(VOI_ax(:,:,i))
+    colorbar
+    subplot(2,1,2)
+    histogram(VOI_ax(:,:,i),255); 
+    xlim([0,255])
+    grid on 
+    pause(1)
+end
+%%
+MASK=VOI_ax(:,:,22:25);
+MASK(MASK>250)=0;
+VOI_ax(:,:,22:25)=MASK;
+figure()
+montage(VOI_ax)
+
 %salt & pepper filtering
-for i=1:length(v3)
-    vol_imadjust(:,:,i)=medfilt2(vol_imadjust(:,:,i), [5 5]);
+for i=1:size(VOI_ax,3)
+    VOI_ax_s(:,:,i)=medfilt2(VOI_ax(:,:,i), [3 3]);
 end
 
-%Binarizzazione 
-bin_vol=imbinarize(vol_imadjust,0.6);
+figure()
+subplot(2,1,1)
+    montage(VOI_ax)
+ subplot(2,1,2)
+ montage(VOI_ax_s)
+
+%% Aumento del contrasto
+j=0;
+
+ for i=1:size(VOI_ax,3)
+     VOI_adj(:,:,i) = imadjust(VOI_ax(:,:,i),[0 0.5882],[0 1],2);
+ end 
+%% histogramm 
+
+figure('Name', "Istogrammi")
+for i=1:size(VOI_ax,3)
+    subplot(2,1,1)
+    imshow(VOI_adj(:,:,i))
+    colorbar
+    subplot(2,1,2)
+    histogram(VOI_adj(:,:,i),255); 
+    xlim([0,255])
+    grid on 
+    pause(1)
+end 
+
+%% Binarizzazione 
+bin_vol=imbinarize(VOI_adj,0.8);
 
 figure()
 subplot(1,2,1)
-montage(vol_imadjust)
+montage(VOI_adj)
 title('Enhanced contrast')
 subplot(1,2,2)
 montage(bin_vol)
-
+%%
 %Prendo i contorni 
 figure()
-for i=2:26
+for i=1:size(bin_vol,3)
     imshow(bin_vol(:,:,i))
     hold on
     imcontour(bin_vol(:,:,i),4,'m')
