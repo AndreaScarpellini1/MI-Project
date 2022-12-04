@@ -236,7 +236,7 @@ montage(bin_vol)
 %Prendo i contorni 
 figure()
 for i=1:size(bin_vol,3)
-    imshow(bin_vol(:,:,i))
+    imshow(VOI_ax(:,:,i))
     hold on
     imcontour(bin_vol(:,:,i),4,'m')
     pause (1)
