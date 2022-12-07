@@ -1,12 +1,14 @@
 clc
 clear
 close all 
-cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
+%cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=1;
+a=0;
 %% dati 
 load MRIdata.mat
-%% Segmentation and AMOUNT AXIAL PIXEL
+
+%% AXIAL PLANE: Pre-processing of MRI, segmentation of lesione and cross-sectional area
+
 if (a==0)
     figure(1)
         montage(vol)
@@ -16,13 +18,16 @@ if (a==0)
         title('Tumor From slice 64 to 90.')
 end 
 
+% the tumor is visible from 65 to 89 slice
+%% 
+% isolate the region of the lesion
 figure()
 subplot(2,1,1)
 imshow(vol(:,:,75))
 impixelinfo
 title("Isolate the tumor")
 subplot(2,1,2)
-[Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]);
+[Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]); %%% qualcosa di strano
 
 % Dimensioni del taglio 
 v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
@@ -37,7 +42,8 @@ subplot(2,1,2)
 imshow(Cropped_vol)
 title('Immagine ricavata dalla funzione')
 
-%% studio histogrammi 
+%% 
+% studio histogrammi 
 VOI=vol(v1,v2,v3);
 figure('Name', "Istogrammi")
 for i=1:27
@@ -103,6 +109,7 @@ end
 
 figure()
 montage(vol_pn)
+
 %%
 %Binarizzazione 
 bin_vol=imbinarize(vol_pn,0.8);
@@ -133,17 +140,23 @@ for i=2:26
 end 
 %close(vidfile)
 
-
 %%
-% area of the binarized image 
-Axial_num_pixel=0;
+% area of the binarized image for every slice
+Axial_num_pixel=[];
 for i=2:26
-    Axial_num_pixel=Axial_num_pixel+sum(sum(bin_vol(:,:,i)==1)); %conta i pixel bianchi 
+    Axial_num_pixel=[Axial_num_pixel sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
+
+% total volume of the lesion in mm^3
+volume_l=0;
+for i=1:25
+     volume_l=volume_l+Axial_num_pixel(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
 
 %%
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
+
 %% 3. Segment the lesion and calculate the respective cross-sectional area over sagittal slice number 135 4. Identify sagittal slices that contain the lesion and extend the quantification of its cross-sectional area to the whole volume. Try to repeat this process across axial slices. What are the main challenges of segmenting this lesion with respect to other cerebral tissues and orthogonal views?
 %from axial to sagittal plane:
 for i=1:dim(1)
