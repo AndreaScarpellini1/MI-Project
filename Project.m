@@ -3,13 +3,13 @@ clear
 close all 
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=0;
+a=1;
 %% dati 
 load MRIdata.mat
 
-%% AXIAL PLANE: Pre-processing of MRI, segmentation of lesione and cross-sectional area
+%% AXIAL PLANE: Pre-processing of MRI, segmentation of lesion and total volume
 
-if (a==0)
+if (a==1)
     figure(1)
         montage(vol)
         title("MRI iniziale.")
@@ -58,6 +58,14 @@ for i=1:27
 end 
 
 %%
+% manual correction of white region
+MASK=VOI(:,:,25:27);
+MASK(MASK>240)=0;
+VOI(:,:,25:27)=MASK;
+figure()
+montage(VOI)
+
+
 %Aumento del contrasto
 gamma=[0.5,1,1.5,2];
 gammas={'0.5','1.0','1.5','2.0'};
@@ -75,7 +83,7 @@ for z=1:length(gamma)
     montage(vol_imadjusted)
     title(['Gamma =' gammas(z)])
 end 
-% gamma --> 2 
+% scegliamo gamma --> 2 
 
 
 figure('Name', "Istogrammi")
@@ -122,13 +130,14 @@ subplot(1,2,2)
 montage(bin_vol)
 title("AFTER BIN")
 
-%% Prendo i contorni 
+%%
+% Prendo i contorni 
 
 %vidfile = VideoWriter('testmovie.mp4','MPEG-4');
 %open(vidfile);
 figure()
 j=0;
-for i=2:26
+for i=2:25
     j=j+1;
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
@@ -143,13 +152,13 @@ end
 %%
 % area of the binarized image for every slice
 Axial_num_pixel=[];
-for i=2:26
+for i=2:25
     Axial_num_pixel=[Axial_num_pixel sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_l=0;
-for i=1:25
+for i=1:24
      volume_l=volume_l+Axial_num_pixel(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -157,10 +166,10 @@ end
 %3D Visualization 
 volumeViewer(vol(v1,v2,v3))
 
-%% 3. Segment the lesion and calculate the respective cross-sectional area over sagittal slice number 135 4. Identify sagittal slices that contain the lesion and extend the quantification of its cross-sectional area to the whole volume. Try to repeat this process across axial slices. What are the main challenges of segmenting this lesion with respect to other cerebral tissues and orthogonal views?
+%% SAGITTAL PLANE: Pre-processing of MRI, segmentation of lesion and total volume
 %from axial to sagittal plane:
 for i=1:dim(1)
-    vol_ax(:,:,i)=vol(i,:,:);
+    vol_ax(:,:,i)=vol(i,:,:); %% perchè vol_ax se siamo sul piano sagittale?
 end
 
 clear vol_imadjust
@@ -174,6 +183,7 @@ if (a==1)
         title('Tumor From slice 107 to 144.')
 end 
 
+% the lesion is visible from slice 108 to 143
 %%
 [Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [60 116 30 60]);
 %55 135 35 60
@@ -205,7 +215,8 @@ VOI_ax(:,:,22:25)=MASK;
 figure()
 montage(VOI_ax)
 
-%salt & pepper filtering
+%salt & pepper filtering        %% nel piano assiale lo abbiamo messo dopo
+%il contrasto
 for i=1:size(VOI_ax,3)
     VOI_ax_s(:,:,i)=medfilt2(VOI_ax(:,:,i), [3 3]);
 end
@@ -255,6 +266,8 @@ for i=1:size(bin_vol,3)
     pause (1)
 end 
 title("Contours of the tumor")
+
+
 %% 5. Add noise to the original dataset and check the performances of your implemented workflow with respect to different levels of noise.
 rand_IM = rand(256,256);
 figure, 
