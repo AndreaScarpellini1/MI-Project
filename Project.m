@@ -285,4 +285,51 @@ subplot(1,2,2)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
 title('image with additional noise')
 
+%%
+[Cropped_vol d]= imcrop(rum_sc(:,:,75), [130 102 51 45]);
+v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
+v2=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
+v3=64:90;
+VOI=rum_sc(v1,v2,v3);
+
+
+
+%%
+MASK=VOI(:,:,25:27);
+MASK(MASK>240)=0;
+VOI(:,:,25:27)=MASK;
+
+for i=1:size(VOI,3)
+        vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
+end 
+
+for i=1:length(v3)
+    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
+end
+
+figure()
+montage(vol_pn)
+
+%%
+bin_vol=imbinarize(vol_pn,0.8);
+
+figure()
+
+for i=2:25
+    
+    imshow(VOI(:,:,i))
+    title("Contour of the tumor")
+    hold on
+    imcontour(bin_vol(:,:,i),5,'m');
+    pause (1)
+end
+
+% contorni troppo irregolari --> aggiungiamo un low-pass filter
+
+
+
+
+
+
+
 %% 6. [Optional] manually segment the lesion starting from sagittal slice number 135, hence quantify segmentation performances in terms of sensitivity, specificity and Dice coefficient.
