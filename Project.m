@@ -292,17 +292,20 @@ v2=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
 v3=64:90;
 VOI=rum_sc(v1,v2,v3);
 
-
-
 %%
-MASK=VOI(:,:,25:27);
-MASK(MASK>240)=0;
-VOI(:,:,25:27)=MASK;
+% MASK=VOI(:,:,25:27);
+% MASK(MASK>(240/255))=0;
+% VOI(:,:,25:27)=MASK;
+
+clear vol_imadjusted
 
 for i=1:size(VOI,3)
         vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
 end 
+figure()
+montage(vol_imadjusted)
 
+clear vol_pn
 for i=1:length(v3)
     vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
 end
@@ -324,12 +327,69 @@ for i=2:25
     pause (1)
 end
 
-% contorni troppo irregolari --> aggiungiamo un low-pass filter
+%%
+% contorni troppo irregolari --> aggiungiamo un low-pass filter e
+% riapplichiamo la procedura
+img_filt=zeros(size(rum_sc,1),size(rum_sc,2),size(rum_sc,3));
+k=[1/9 1/9 1/9;
+   1/9 1/9 1/9;
+   1/9 1/9 1/9];
+for i=1:size(rum_sc,3)
+    img_filt(:,:,i) = imfilter(rum_sc(:,:,i),k,'conv','symmetric');
+end
+
+figure, 
+subplot(1,2,1)
+imshow(rum_sc(:,:,75)) % uint8 da 0 a 255
+title('original image')
+subplot(1,2,2)
+imshow(img_filt(:,:,75)) % double da 0 a 1
+title('image with additional noise')
+
+VOI_filt=img_filt(v1,v2,v3);
+
+MASK=VOI_filt(:,:,25:27);
+MASK(MASK>(240/255))=0;
+VOI_filt(:,:,25:27)=MASK;
 
 
+clear vol_imadjusted
+for i=1:size(VOI_filt,3)
+        vol_imadjusted(:,:,i) = imadjust(VOI_filt(:,:,i),[0 0.5882],[0 1],2);
+end 
 
+clear vol_pn
+for i=1:length(v3)
+    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
+end
 
+figure()
+montage(vol_pn)
 
+bin_vol=imbinarize(vol_pn,0.8);
+figure()
+montage(bin_vol)
 
+figure()
+for i=2:25
+    
+    imshow(VOI(:,:,i))
+    title("Contour of the tumor")
+    hold on
+    imcontour(bin_vol(:,:,i),5,'m');
+    pause (1)
+end
 
-%% 6. [Optional] manually segment the lesion starting from sagittal slice number 135, hence quantify segmentation performances in terms of sensitivity, specificity and Dice coefficient.
+num_pixel_noise=[];
+for i=2:25
+    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_l_noise=0;
+for i=1:24
+     volume_l_noise=volume_l_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
+perc=(volume_l_noise/volume_l)*100
+
