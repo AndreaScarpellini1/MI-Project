@@ -33,10 +33,11 @@ subplot(2,1,2)
 v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
 v2=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
 v3=64:90;
+VOI=vol(v1,v2,v3);
 
 figure('Name',"Confronto funzione matlab e dimensioni ottenute")
 subplot(2,1,1)
-imshow(vol(v1,v2,75));
+imshow(VOI(:,:,(12)));
 title('Immagine ricavata dalle dimensioni')
 subplot(2,1,2)
 imshow(Cropped_vol)
@@ -44,7 +45,6 @@ title('Immagine ricavata dalla funzione')
 
 %% 
 % studio histogrammi 
-VOI=vol(v1,v2,v3);
 figure('Name', "Istogrammi")
 for i=1:27
     subplot(2,1,1)
@@ -169,90 +169,92 @@ volumeViewer(vol(v1,v2,v3))
 %% SAGITTAL PLANE: Pre-processing of MRI, segmentation of lesion and total volume
 %from axial to sagittal plane:
 for i=1:dim(1)
-    vol_ax(:,:,i)=vol(i,:,:); %% perchè vol_ax se siamo sul piano sagittale?
+    vol_s(:,:,i)=vol(i,:,:); %% perchè vol_ax se siamo sul piano sagittale?
 end
 
-clear vol_imadjust
 %display images
 if (a==1)
     figure(1)
-        montage(vol_ax)
+        montage(vol_s)
         title("MRI Sagittale.")
     figure(2)
-        montage(vol_ax(:,:,107:144))
+        montage(vol_s(:,:,107:144))
         title('Tumor From slice 107 to 144.')
 end 
 
 % the lesion is visible from slice 108 to 143
 %%
-[Cropped_vol_ax d_ax]= imcrop(vol_ax(:,:,126), [60 116 30 60]);
+[Cropped_vol_s d_s]= imcrop(vol_s(:,:,126), [60 138 30 38]);
 %55 135 35 60
 % Dimensioni del taglio 
-v1=round(d_ax(2)):(round(d_ax(2))+length(Cropped_vol_ax(:,1)));
-v2=round(d_ax(1)):(round(d_ax(1))+length(Cropped_vol_ax(1,:)));
+v1=round(d_s(2)):(round(d_s(2))+length(Cropped_vol_s(:,1)));
+v2=round(d_s(1)):(round(d_s(1))+length(Cropped_vol_s(1,:)));
 v3=107:144;
 
-VOI_ax=vol_ax(v1,v2,v3);
+VOI_s=vol_s(v1,v2,v3);
 figure()
-    montage(VOI_ax)
+    montage(VOI_s)
 
 %% Istogramma 
 figure('Name', "Istogrammi")
-for i=1:size(VOI_ax,3)
+for i=1:size(VOI_s,3)
     subplot(2,1,1)
-    imshow(VOI_ax(:,:,i))
+    imshow(VOI_s(:,:,i))
     colorbar
     subplot(2,1,2)
-    histogram(VOI_ax(:,:,i),255); 
+    histogram(VOI_s(:,:,i),255); 
     xlim([0,255])
     grid on 
     pause(1)
 end
 %%
-MASK=VOI_ax(:,:,22:25);
-MASK(MASK>250)=0;
-VOI_ax(:,:,22:25)=MASK;
+MASK=VOI_s(:,:,22:25);
+MASK(MASK>230)=0;
+VOI_s(:,:,22:25)=MASK;
 figure()
-montage(VOI_ax)
+montage(VOI_s)
 
-%salt & pepper filtering        %% nel piano assiale lo abbiamo messo dopo
-%il contrasto
-for i=1:size(VOI_ax,3)
-    VOI_ax_s(:,:,i)=medfilt2(VOI_ax(:,:,i), [3 3]);
+%% Aumento del contrasto
+
+ for i=1:size(VOI_s,3)
+     VOI_adj(:,:,i) = imadjust(VOI_s(:,:,i),[0 0.5882],[0 1],2);
+ end 
+
+ figure()
+ montage(VOI_adj)
+
+%% salt & pepper filtering
+for i=1:size(VOI_s,3)
+    VOI_pn(:,:,i)=medfilt2(VOI_adj(:,:,i), [6 6]);
 end
 
 figure()
 subplot(2,1,1)
-    montage(VOI_ax)
+    montage(VOI_s)
  subplot(2,1,2)
- montage(VOI_ax_s)
+ montage(VOI_pn)
 
-%% Aumento del contrasto
-j=0;
 
- for i=1:size(VOI_ax,3)
-     VOI_adj(:,:,i) = imadjust(VOI_ax(:,:,i),[0 0.5882],[0 1],2);
- end 
 %% histogramm 
 
 figure('Name', "Istogrammi")
-for i=1:size(VOI_ax,3)
+for i=1:size(VOI_s,3)
     subplot(2,1,1)
-    imshow(VOI_adj(:,:,i))
+    imshow(VOI_pn(:,:,i))
     colorbar
     subplot(2,1,2)
-    histogram(VOI_adj(:,:,i),255); 
+    histogram(VOI_pn(:,:,i),255); 
     xlim([0,255])
     grid on 
     pause(1)
 end 
 
 %% Binarizzazione 
-bin_vol=imbinarize(VOI_adj,0.8);
+bin_vol=imbinarize(VOI_pn,0.8);
 
 figure()
 subplot(1,2,1)
-montage(VOI_adj)
+montage(VOI_pn)
 title('Enhanced contrast')
 subplot(1,2,2)
 montage(bin_vol)
@@ -260,12 +262,26 @@ montage(bin_vol)
 %Prendo i contorni 
 figure()
 for i=1:size(bin_vol,3)
-    imshow(bin_vol(:,:,i))
+    imshow(VOI_s(:,:,i))
     hold on
     imcontour(bin_vol(:,:,i),4,'m')
     pause (1)
 end 
 title("Contours of the tumor")
+
+%%
+num_pixel_s=[];
+for i=2:25
+    num_pixel_s=[num_pixel_s sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_l_s=0;
+for i=1:24
+     volume_l_s=volume_l_s+num_pixel_s(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
+perc=(volume_l_s/volume_l)*100
 
 
 %% 5. Add noise to the original dataset and check the performances of your implemented workflow with respect to different levels of noise.
