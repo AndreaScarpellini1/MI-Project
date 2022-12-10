@@ -3,7 +3,7 @@ clear
 close all 
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=1;
+a=0;
 %% dati 
 load MRIdata.mat
 
@@ -27,35 +27,40 @@ imshow(vol(:,:,75))
 impixelinfo
 title("Isolate the tumor")
 subplot(2,1,2)
-[Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]); %%% qualcosa di strano
+[Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]); 
+imshow(Cropped_vol)
 
 % Dimensioni del taglio 
-v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
-v2=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
-v3=64:90;
-VOI=vol(v1,v2,v3);
+v1a=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
+v2a=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
+v3a=64:90;
+VOI=vol(v1a,v2a,v3a);
 
-figure('Name',"Confronto funzione matlab e dimensioni ottenute")
-subplot(2,1,1)
-imshow(VOI(:,:,(12)));
-title('Immagine ricavata dalle dimensioni')
-subplot(2,1,2)
-imshow(Cropped_vol)
-title('Immagine ricavata dalla funzione')
+if (a==1)
+    figure('Name',"Confronto funzione matlab e dimensioni ottenute")
+    subplot(2,1,1)
+    imshow(VOI(:,:,(12)));
+    title('Immagine ricavata dalle dimensioni')
+    subplot(2,1,2)
+    imshow(Cropped_vol)
+    title('Immagine ricavata dalla funzione')
+end
 
 %% 
 % studio histogrammi 
-figure('Name', "Istogrammi")
-for i=1:27
-    subplot(2,1,1)
-    imshow(VOI(:,:,i))
-    colorbar
-    subplot(2,1,2)
-    histogram(VOI(:,:,i),255); 
-    xlim([0,255])
-    grid on 
-    pause(1)
-end 
+if (a==1)
+    figure('Name', "Istogrammi")
+    for i=1:27
+        subplot(2,1,1)
+        imshow(VOI(:,:,i))
+        colorbar
+        subplot(2,1,2)
+        histogram(VOI(:,:,i),255);
+        xlim([0,255])
+        grid on
+        pause(1)
+    end
+end
 
 %%
 % manual correction of white region
@@ -65,17 +70,15 @@ VOI(:,:,25:27)=MASK;
 figure()
 montage(VOI)
 
-
 %Aumento del contrasto
 gamma=[0.5,1,1.5,2];
 gammas={'0.5','1.0','1.5','2.0'};
 figure()
 
-LOWin = 150/255;
-HIGHin = max(max(VOI(:,:,i)))/255;
+%LOWin = 150/255;
+%HIGHin = max(max(VOI(:,:,i)))/255;
 
 for z=1:length(gamma)
-   
     for i=1:size(VOI,3)
         vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],gamma(z));
     end 
@@ -85,33 +88,34 @@ for z=1:length(gamma)
 end 
 % scegliamo gamma --> 2 
 
-
-figure('Name', "Istogrammi")
-for i=1:27
-    subplot(2,2,1)
+%%
+if (a==1)
+    figure('Name', "Istogrammi")
+    for i=1:27
+        subplot(2,2,1)
         imshow(vol_imadjusted(:,:,i))
         colorbar
         title("Modified image")
-    subplot(2,2,2)
-        histogram(vol_imadjusted(:,:,i),255); 
+        subplot(2,2,2)
+        histogram(vol_imadjusted(:,:,i),255);
         xlim([0,255])
-        grid on 
-    subplot(2,2,3)
+        grid on
+        subplot(2,2,3)
         imshow(VOI(:,:,i))
         colorbar
-    subplot(2,2,4)
-        histogram(VOI(:,:,i),255); 
+        subplot(2,2,4)
+        histogram(VOI(:,:,i),255);
         xlim([0,255])
         xline(150,'r')
-        grid on 
+        grid on
         title("Original image")
-    pause(1)
-end 
-
+        pause(1)
+    end
+end
 
 %%
 %salt & pepper filtering
-for i=1:length(v3)
+for i=1:length(v3a)
     vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
 end
 
@@ -157,14 +161,16 @@ for i=2:25
 end 
 
 % total volume of the lesion in mm^3
-volume_l=0;
+volume_ax=0;
 for i=1:24
-     volume_l=volume_l+Axial_num_pixel(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+     volume_ax=volume_ax+Axial_num_pixel(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
 %%
 %3D Visualization 
-volumeViewer(vol(v1,v2,v3))
+if (a==1)
+    volumeViewer(vol(v1a,v2a,v3a))
+end
 
 %% SAGITTAL PLANE: Pre-processing of MRI, segmentation of lesion and total volume
 %from axial to sagittal plane:
@@ -187,25 +193,27 @@ end
 [Cropped_vol_s d_s]= imcrop(vol_s(:,:,126), [60 138 30 38]);
 %55 135 35 60
 % Dimensioni del taglio 
-v1=round(d_s(2)):(round(d_s(2))+length(Cropped_vol_s(:,1)));
-v2=round(d_s(1)):(round(d_s(1))+length(Cropped_vol_s(1,:)));
-v3=107:144;
+v1s=round(d_s(2)):(round(d_s(2))+length(Cropped_vol_s(:,1)));
+v2s=round(d_s(1)):(round(d_s(1))+length(Cropped_vol_s(1,:)));
+v3s=107:144;
 
-VOI_s=vol_s(v1,v2,v3);
+VOI_s=vol_s(v1s,v2s,v3s);
 figure()
-    montage(VOI_s)
+montage(VOI_s)
 
 %% Istogramma 
-figure('Name', "Istogrammi")
-for i=1:size(VOI_s,3)
-    subplot(2,1,1)
-    imshow(VOI_s(:,:,i))
-    colorbar
-    subplot(2,1,2)
-    histogram(VOI_s(:,:,i),255); 
-    xlim([0,255])
-    grid on 
-    pause(1)
+if(a==1)
+    figure('Name', "Istogrammi")
+    for i=1:size(VOI_s,3)
+        subplot(2,1,1)
+        imshow(VOI_s(:,:,i))
+        colorbar
+        subplot(2,1,2)
+        histogram(VOI_s(:,:,i),255);
+        xlim([0,255])
+        grid on
+        pause(1)
+    end
 end
 %%
 MASK=VOI_s(:,:,22:25);
@@ -230,24 +238,25 @@ end
 
 figure()
 subplot(2,1,1)
-    montage(VOI_s)
- subplot(2,1,2)
- montage(VOI_pn)
+montage(VOI_s)
+subplot(2,1,2)
+montage(VOI_pn)
 
 
 %% histogramm 
-
-figure('Name', "Istogrammi")
-for i=1:size(VOI_s,3)
-    subplot(2,1,1)
-    imshow(VOI_pn(:,:,i))
-    colorbar
-    subplot(2,1,2)
-    histogram(VOI_pn(:,:,i),255); 
-    xlim([0,255])
-    grid on 
-    pause(1)
-end 
+if(a==1)
+    figure('Name', "Istogrammi")
+    for i=1:size(VOI_s,3)
+        subplot(2,1,1)
+        imshow(VOI_pn(:,:,i))
+        colorbar
+        subplot(2,1,2)
+        histogram(VOI_pn(:,:,i),255);
+        xlim([0,255])
+        grid on
+        pause(1)
+    end
+end
 
 %% Binarizzazione 
 bin_vol=imbinarize(VOI_pn,0.8);
@@ -258,6 +267,7 @@ montage(VOI_pn)
 title('Enhanced contrast')
 subplot(1,2,2)
 montage(bin_vol)
+
 %%
 %Prendo i contorni 
 figure()
@@ -276,42 +286,35 @@ for i=2:25
 end 
 
 % total volume of the lesion in mm^3
-volume_l_s=0;
+volume_s=0;
 for i=1:24
-     volume_l_s=volume_l_s+num_pixel_s(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+     volume_s=volume_s+num_pixel_s(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
-perc=(volume_l_s/volume_l)*100
-
+perc1=(volume_s/volume_ax)*100
 
 %% 5. Add noise to the original dataset and check the performances of your implemented workflow with respect to different levels of noise.
-rand_IM = rand(256,256);
-figure, 
-imshow(rand_IM)
-title('additional noise')
+% LOW LEVEL OF NOISE
+rand_IM = rand(256,256)/3;
 
 rum = double(vol(:,:,:))./255+rand_IM;
 rum_sc = rescale(rum(:,:,:),0,1);
 
-figure, 
-subplot(1,2,1)
+figure(30), 
+subplot(1,3,1)
 imshow(vol(:,:,75)) % uint8 da 0 a 255
 title('original image')
-subplot(1,2,2)
+subplot(1,3,2)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
-title('image with additional noise')
+title('image with low additional noise')
 
 %%
-[Cropped_vol d]= imcrop(rum_sc(:,:,75), [130 102 51 45]);
-v1=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
-v2=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
-v3=64:90;
-VOI=rum_sc(v1,v2,v3);
+VOI=rum_sc(v1a,v2a,v3a);
 
 %%
-% MASK=VOI(:,:,25:27);
-% MASK(MASK>(240/255))=0;
-% VOI(:,:,25:27)=MASK;
+MASK=VOI(:,:,25:27);
+MASK(MASK>(240/255))=0;
+VOI(:,:,25:27)=MASK;
 
 clear vol_imadjusted
 
@@ -322,7 +325,7 @@ figure()
 montage(vol_imadjusted)
 
 clear vol_pn
-for i=1:length(v3)
+for i=1:length(v3a)
     vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
 end
 
@@ -343,6 +346,85 @@ for i=2:25
     pause (1)
 end
 
+num_pixel_noise=[];
+for i=2:25
+    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_noise=0;
+for i=1:24
+     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
+perc2=(volume_noise/volume_ax)*100
+
+%% HIGH LEVEL OF NOISE
+clear rand_IM
+rand_IM = rand(256,256);
+figure, 
+imshow(rand_IM)
+title('additional noise')
+
+clear rum
+clear rum_sc
+rum = double(vol(:,:,:))./255+rand_IM;
+rum_sc = rescale(rum(:,:,:),0,1);
+
+figure(30), 
+subplot(1,3,3)
+imshow(rum_sc(:,:,75)) % double da 0 a 1
+title('image with high additional noise')
+
+clear VOI
+VOI=rum_sc(v1a,v2a,v3a);
+
+MASK=VOI(:,:,25:27);
+MASK(MASK>(240/255))=0;
+VOI(:,:,25:27)=MASK;
+
+clear vol_imadjusted
+
+for i=1:size(VOI,3)
+        vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
+end 
+figure()
+montage(vol_imadjusted)
+
+clear vol_pn
+for i=1:length(v3a)
+    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
+end
+
+figure()
+montage(vol_pn)
+
+clear bin_vol
+bin_vol=imbinarize(vol_pn,0.8);
+
+figure()
+for i=2:25
+    
+    imshow(VOI(:,:,i))
+    title("Contour of the tumor")
+    hold on
+    imcontour(bin_vol(:,:,i),5,'m');
+    pause (1)
+end
+
+num_pixel_noise=[];
+for i=2:25
+    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_noise=0;
+for i=1:24
+     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
+perc3=(volume_noise/volume_ax)*100
+
 %%
 % contorni troppo irregolari --> aggiungiamo un low-pass filter e
 % riapplichiamo la procedura
@@ -354,15 +436,7 @@ for i=1:size(rum_sc,3)
     img_filt(:,:,i) = imfilter(rum_sc(:,:,i),k,'conv','symmetric');
 end
 
-figure, 
-subplot(1,2,1)
-imshow(rum_sc(:,:,75)) % uint8 da 0 a 255
-title('original image')
-subplot(1,2,2)
-imshow(img_filt(:,:,75)) % double da 0 a 1
-title('image with additional noise')
-
-VOI_filt=img_filt(v1,v2,v3);
+VOI_filt=img_filt(v1a,v2a,v3a);
 
 MASK=VOI_filt(:,:,25:27);
 MASK(MASK>(240/255))=0;
@@ -375,13 +449,14 @@ for i=1:size(VOI_filt,3)
 end 
 
 clear vol_pn
-for i=1:length(v3)
+for i=1:length(v3a)
     vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
 end
 
 figure()
 montage(vol_pn)
 
+clear bin_vol
 bin_vol=imbinarize(vol_pn,0.8);
 figure()
 montage(bin_vol)
@@ -402,10 +477,9 @@ for i=2:25
 end 
 
 % total volume of the lesion in mm^3
-volume_l_noise=0;
+volume_noise=0;
 for i=1:24
-     volume_l_noise=volume_l_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
-perc=(volume_l_noise/volume_l)*100
-
+perc4=(volume_noise/volume_ax)*100
