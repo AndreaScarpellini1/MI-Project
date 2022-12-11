@@ -3,7 +3,7 @@ clear
 close all 
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=0;
+a=1;
 %% dati 
 load MRIdata.mat
 
@@ -33,7 +33,7 @@ imshow(Cropped_vol)
 % Dimensioni del taglio 
 v1a=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
 v2a=round(d(1)):(round(d(1))+length(Cropped_vol(1,:)));
-v3a=64:90;
+v3a=65:89;
 VOI=vol(v1a,v2a,v3a);
 
 if (a==1)
@@ -64,9 +64,9 @@ end
 
 %%
 % manual correction of white region
-MASK=VOI(:,:,25:27);
+MASK=VOI(:,:,23:25);
 MASK(MASK>240)=0;
-VOI(:,:,25:27)=MASK;
+VOI(:,:,23:25)=MASK;
 figure()
 montage(VOI)
 
@@ -91,7 +91,7 @@ end
 %%
 if (a==1)
     figure('Name', "Istogrammi")
-    for i=1:27
+    for i=1:25
         subplot(2,2,1)
         imshow(vol_imadjusted(:,:,i))
         colorbar
@@ -141,7 +141,7 @@ title("AFTER BIN")
 %open(vidfile);
 figure()
 j=0;
-for i=2:25
+for i=1:25
     j=j+1;
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
@@ -156,13 +156,13 @@ end
 %%
 % area of the binarized image for every slice
 Axial_num_pixel=[];
-for i=2:25
+for i=1:25
     Axial_num_pixel=[Axial_num_pixel sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_ax=0;
-for i=1:24
+for i=1:25
      volume_ax=volume_ax+Axial_num_pixel(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -195,7 +195,7 @@ end
 % Dimensioni del taglio 
 v1s=round(d_s(2)):(round(d_s(2))+length(Cropped_vol_s(:,1)));
 v2s=round(d_s(1)):(round(d_s(1))+length(Cropped_vol_s(1,:)));
-v3s=107:144;
+v3s=108:143;
 
 VOI_s=vol_s(v1s,v2s,v3s);
 figure()
@@ -216,9 +216,9 @@ if(a==1)
     end
 end
 %%
-MASK=VOI_s(:,:,22:25);
+MASK=VOI_s(:,:,20:23);
 MASK(MASK>230)=0;
-VOI_s(:,:,22:25)=MASK;
+VOI_s(:,:,20:23)=MASK;
 figure()
 montage(VOI_s)
 
@@ -281,13 +281,13 @@ title("Contours of the tumor")
 
 %%
 num_pixel_s=[];
-for i=2:25
+for i=1:25
     num_pixel_s=[num_pixel_s sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_s=0;
-for i=1:24
+for i=1:25
      volume_s=volume_s+num_pixel_s(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -302,9 +302,6 @@ end
 
 rum_sc = rescale(rum(:,:,:),0,1);
 
-figure()
-imshow(rum_sc(:,:,75))
-
 figure(60), 
 subplot(2,2,1)
 imshow(vol(:,:,75)) % uint8 da 0 a 255
@@ -316,9 +313,9 @@ title('image with low additional noise')
 
 VOI=rum_sc(v1a,v2a,v3a);
 
-MASK=VOI(:,:,25:27);
+MASK=VOI(:,:,23:25);
 MASK(MASK>(240/255))=0;
-VOI(:,:,25:27)=MASK;
+VOI(:,:,23:25)=MASK;
 
 clear vol_imadjusted
 
@@ -340,7 +337,7 @@ clear bin_vol
 bin_vol=imbinarize(vol_pn,0.8);
 
 figure()
-for i=2:25
+for i=1:25
     
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
@@ -350,13 +347,13 @@ for i=2:25
 end
 
 num_pixel_noise=[];
-for i=2:25
+for i=1:25
     num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_noise=0;
-for i=1:24
+for i=1:25
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -377,9 +374,9 @@ title('image with low additional noise')
 clear VOI
 VOI=rum_sc(v1a,v2a,v3a);
 
-MASK=VOI(:,:,25:27);
+MASK=VOI(:,:,23:25);
 MASK(MASK>(240/255))=0;
-VOI(:,:,25:27)=MASK;
+VOI(:,:,23:25)=MASK;
 
 clear vol_imadjusted
 for i=1:size(VOI,3)
@@ -400,7 +397,7 @@ clear bin_vol
 bin_vol=imbinarize(vol_pn,0.8);
 
 figure()
-for i=2:25
+for i=1:25
     
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
@@ -410,13 +407,13 @@ for i=2:25
 end
 
 num_pixel_noise=[];
-for i=2:25
+for i=1:25
     num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_noise=0;
-for i=1:24
+for i=1:25
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -442,9 +439,9 @@ title('image with high additional noise')
 clear VOI
 VOI=rum_sc(v1a,v2a,v3a);
 
-MASK=VOI(:,:,25:27);
+MASK=VOI(:,:,23:25);
 MASK(MASK>(240/255))=0;
-VOI(:,:,25:27)=MASK;
+VOI(:,:,23:25)=MASK;
 
 clear vol_imadjusted
 
@@ -466,7 +463,7 @@ clear bin_vol
 bin_vol=imbinarize(vol_pn,0.8);
 
 figure()
-for i=2:25
+for i=1:25
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
     hold on
@@ -475,13 +472,13 @@ for i=2:25
 end
 
 num_pixel_noise=[];
-for i=2:25
+for i=1:25
     num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_noise=0;
-for i=1:24
+for i=1:25
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
@@ -500,9 +497,9 @@ end
 
 VOI_filt=img_filt(v1a,v2a,v3a);
 
-MASK=VOI_filt(:,:,25:27);
+MASK=VOI_filt(:,:,23:25);
 MASK(MASK>(240/255))=0;
-VOI_filt(:,:,25:27)=MASK;
+VOI_filt(:,:,23:25)=MASK;
 
 
 clear vol_imadjusted
@@ -525,7 +522,7 @@ figure()
 montage(bin_vol)
 
 figure()
-for i=2:25
+for i=1:25
     
     imshow(VOI(:,:,i))
     title("Contour of the tumor")
@@ -535,13 +532,13 @@ for i=2:25
 end
 
 num_pixel_noise=[];
-for i=2:25
+for i=1:25
     num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
 end 
 
 % total volume of the lesion in mm^3
 volume_noise=0;
-for i=1:24
+for i=1:25
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
