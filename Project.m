@@ -510,6 +510,7 @@ for i=1:size(VOI_filt,3)
         vol_imadjusted(:,:,i) = imadjust(VOI_filt(:,:,i),[0 0.5882],[0 1],2);
 end 
 
+
 clear vol_pn
 for i=1:length(v3a)
     vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
