@@ -294,89 +294,26 @@ end
 perc1=(volume_s/volume_ax)*100
 
 %% 5. Add noise to the original dataset and check the performances of your implemented workflow with respect to different levels of noise.
-% LOW LEVEL OF NOISE
-rand_IM = rand(256,256)/3;
+% SALT AND PEPPER NOISE
+rum_sc=vol;
+for i = 1:size(vol,3)
+    rum(:,:,i)=imnoise(vol(:,:,i),'salt & pepper');
+end
 
-rum = double(vol(:,:,:))./255+rand_IM;
 rum_sc = rescale(rum(:,:,:),0,1);
 
-figure(30), 
-subplot(1,3,1)
+figure()
+imshow(rum_sc(:,:,75))
+
+figure(60), 
+subplot(2,2,1)
 imshow(vol(:,:,75)) % uint8 da 0 a 255
 title('original image')
-subplot(1,3,2)
+subplot(2,2,2)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
 title('image with low additional noise')
 
-%%
-VOI=rum_sc(v1a,v2a,v3a);
 
-%%
-MASK=VOI(:,:,25:27);
-MASK(MASK>(240/255))=0;
-VOI(:,:,25:27)=MASK;
-
-clear vol_imadjusted
-
-for i=1:size(VOI,3)
-        vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
-end 
-figure()
-montage(vol_imadjusted)
-
-clear vol_pn
-for i=1:length(v3a)
-    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
-end
-
-figure()
-montage(vol_pn)
-
-%%
-bin_vol=imbinarize(vol_pn,0.8);
-
-figure()
-
-for i=2:25
-    
-    imshow(VOI(:,:,i))
-    title("Contour of the tumor")
-    hold on
-    imcontour(bin_vol(:,:,i),5,'m');
-    pause (1)
-end
-
-num_pixel_noise=[];
-for i=2:25
-    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
-end 
-
-% total volume of the lesion in mm^3
-volume_noise=0;
-for i=1:24
-     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
-end
-
-perc2=(volume_noise/volume_ax)*100
-
-%% HIGH LEVEL OF NOISE
-clear rand_IM
-rand_IM = rand(256,256);
-figure, 
-imshow(rand_IM)
-title('additional noise')
-
-clear rum
-clear rum_sc
-rum = double(vol(:,:,:))./255+rand_IM;
-rum_sc = rescale(rum(:,:,:),0,1);
-
-figure(30), 
-subplot(1,3,3)
-imshow(rum_sc(:,:,75)) % double da 0 a 1
-title('image with high additional noise')
-
-clear VOI
 VOI=rum_sc(v1a,v2a,v3a);
 
 MASK=VOI(:,:,25:27);
@@ -423,7 +360,132 @@ for i=1:24
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
+perc2=(volume_noise/volume_ax)*100
+
+%% LOW LEVEL OF UNIFORM NOISE
+rand_IM = rand(256,256)/3;
+clear rum
+clear rum_sc
+rum = double(vol(:,:,:))./255+rand_IM;
+rum_sc = rescale(rum(:,:,:),0,1);
+
+figure(60), 
+subplot(2,2,3)
+imshow(rum_sc(:,:,75)) % double da 0 a 1
+title('image with low additional noise')
+
+clear VOI
+VOI=rum_sc(v1a,v2a,v3a);
+
+MASK=VOI(:,:,25:27);
+MASK(MASK>(240/255))=0;
+VOI(:,:,25:27)=MASK;
+
+clear vol_imadjusted
+for i=1:size(VOI,3)
+        vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
+end 
+figure()
+montage(vol_imadjusted)
+
+clear vol_pn
+for i=1:length(v3a)
+    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
+end
+
+figure()
+montage(vol_pn)
+
+clear bin_vol
+bin_vol=imbinarize(vol_pn,0.8);
+
+figure()
+for i=2:25
+    
+    imshow(VOI(:,:,i))
+    title("Contour of the tumor")
+    hold on
+    imcontour(bin_vol(:,:,i),5,'m');
+    pause (1)
+end
+
+num_pixel_noise=[];
+for i=2:25
+    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_noise=0;
+for i=1:24
+     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
 perc3=(volume_noise/volume_ax)*100
+
+%% HIGH LEVEL OF UNIFORM NOISE
+clear rand_IM
+rand_IM = rand(256,256);
+figure, 
+imshow(rand_IM)
+title('additional noise')
+
+clear rum
+clear rum_sc
+rum = double(vol(:,:,:))./255+rand_IM;
+rum_sc = rescale(rum(:,:,:),0,1);
+
+figure(60), 
+subplot(2,2,4)
+imshow(rum_sc(:,:,75)) % double da 0 a 1
+title('image with high additional noise')
+
+clear VOI
+VOI=rum_sc(v1a,v2a,v3a);
+
+MASK=VOI(:,:,25:27);
+MASK(MASK>(240/255))=0;
+VOI(:,:,25:27)=MASK;
+
+clear vol_imadjusted
+
+for i=1:size(VOI,3)
+        vol_imadjusted(:,:,i) = imadjust(VOI(:,:,i),[0 0.5882],[0 1],2);
+end 
+figure()
+montage(vol_imadjusted)
+
+clear vol_pn
+for i=1:length(v3a)
+    vol_pn(:,:,i)=medfilt2(vol_imadjusted(:,:,i), [6 6]);
+end
+
+figure()
+montage(vol_pn)
+
+clear bin_vol
+bin_vol=imbinarize(vol_pn,0.8);
+
+figure()
+for i=2:25
+    imshow(VOI(:,:,i))
+    title("Contour of the tumor")
+    hold on
+    imcontour(bin_vol(:,:,i),5,'m');
+    pause (1)
+end
+
+num_pixel_noise=[];
+for i=2:25
+    num_pixel_noise=[num_pixel_noise sum(sum(bin_vol(:,:,i)==1))]; %conta i pixel bianchi 
+end 
+
+% total volume of the lesion in mm^3
+volume_noise=0;
+for i=1:24
+     volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
+end
+
+perc4=(volume_noise/volume_ax)*100
 
 %%
 % contorni troppo irregolari --> aggiungiamo un low-pass filter e
@@ -482,4 +544,4 @@ for i=1:24
      volume_noise=volume_noise+num_pixel_noise(1,i).*pixdim(1,3).*pixdim(1,1).*pixdim(1,2);
 end
 
-perc4=(volume_noise/volume_ax)*100
+perc5=(volume_noise/volume_ax)*100
