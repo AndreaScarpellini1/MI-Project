@@ -3,7 +3,7 @@ clear
 close all 
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=1;
+a=0;
 %% dati 
 load MRIdata.mat
 
@@ -216,9 +216,9 @@ if(a==1)
     end
 end
 %%
-MASK=VOI_s(:,:,20:23);
+MASK=VOI_s(:,:,21:24);
 MASK(MASK>230)=0;
-VOI_s(:,:,20:23)=MASK;
+VOI_s(:,:,21:24)=MASK;
 figure()
 montage(VOI_s)
 
@@ -308,7 +308,7 @@ imshow(vol(:,:,75)) % uint8 da 0 a 255
 title('original image')
 subplot(2,2,2)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
-title('image with low additional noise')
+title('image with salt&pepper noise')
 
 
 VOI=rum_sc(v1a,v2a,v3a);
@@ -359,17 +359,22 @@ end
 
 perc2=(volume_noise/volume_ax)*100
 
-%% LOW LEVEL OF UNIFORM NOISE
-rand_IM = rand(256,256)/3;
+%% LOW LEVEL OF GAUSSIAN NOISE
+%rand_IM = rand(256,256)/3;
 clear rum
 clear rum_sc
-rum = double(vol(:,:,:))./255+rand_IM;
+%rum = double(vol(:,:,:))./255+rand_IM;
+%rum_sc = rescale(rum(:,:,:),0,1);
+for i = 1:size(vol,3)
+    rum(:,:,i)=imnoise(vol(:,:,i),'Gaussian');
+end
+
 rum_sc = rescale(rum(:,:,:),0,1);
 
 figure(60), 
 subplot(2,2,3)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
-title('image with low additional noise')
+title('image with low Gaussian noise')
 
 clear VOI
 VOI=rum_sc(v1a,v2a,v3a);
@@ -419,22 +424,27 @@ end
 
 perc3=(volume_noise/volume_ax)*100
 
-%% HIGH LEVEL OF UNIFORM NOISE
+%% HIGH LEVEL OF GAUSSIAN NOISE
 clear rand_IM
-rand_IM = rand(256,256);
-figure, 
-imshow(rand_IM)
-title('additional noise')
+%rand_IM = rand(256,256);
+%figure,
+%imshow(rand_IM)
+%title('additional noise')
 
 clear rum
 clear rum_sc
-rum = double(vol(:,:,:))./255+rand_IM;
+
+for i = 1:size(vol,3)
+    rum(:,:,i)=imnoise(vol(:,:,i),'Gaussian',0,0.1);
+end
+
+%rum = double(vol(:,:,:))./255+rand_IM;
 rum_sc = rescale(rum(:,:,:),0,1);
 
 figure(60), 
 subplot(2,2,4)
 imshow(rum_sc(:,:,75)) % double da 0 a 1
-title('image with high additional noise')
+title('image with high Gaussian noise')
 
 clear VOI
 VOI=rum_sc(v1a,v2a,v3a);
