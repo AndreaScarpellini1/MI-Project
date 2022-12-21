@@ -3,7 +3,7 @@ clear
 close all 
 %cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=0;
+a=1;
 %% dati 
 load MRIdata.mat
 
@@ -50,7 +50,7 @@ end
 % studio histogrammi 
 if (a==1)
     figure('Name', "Istogrammi")
-    for i=1:27
+    for i=1:25
         subplot(2,1,1)
         imshow(VOI(:,:,i))
         colorbar
@@ -241,7 +241,6 @@ subplot(2,1,1)
 montage(VOI_s)
 subplot(2,1,2)
 montage(VOI_pn)
-
 
 %% histogramm 
 if(a==1)
