@@ -1,9 +1,9 @@
 clc
 clear
 close all 
-%cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
+cd 'C:\Users\scrpa\OneDrive - Politecnico di Milano\Desktop\Poli\Magistrale\Primo anno\BSPMI\MI\project repo\MI-Project'
 %% Animation on: a=1 Animation off: a=0;
-a=0;
+a=1;
 %% dati 
 load MRIdata.mat
 
@@ -86,7 +86,7 @@ for z=1:length(gamma)
     montage(vol_imadjusted)
     title(['Gamma =' gammas(z)])
 end 
-% scegliamo gamma --> 2 
+% gamma --> 2 
 
 %%
 if (a==1)
@@ -439,6 +439,7 @@ end
 
 %rum = double(vol(:,:,:))./255+rand_IM;
 rum_sc = rescale(rum(:,:,:),0,1);
+
 
 figure(60), 
 subplot(2,2,4)
