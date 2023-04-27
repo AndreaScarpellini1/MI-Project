@@ -22,13 +22,14 @@ end
 %% 
 % isolate the region of the lesion
 figure()
-subplot(2,1,1)
+subplot(1,2,1)
 imshow(vol(:,:,75))
 impixelinfo
 title("Isolate the tumor")
-subplot(2,1,2)
+subplot(1,2,2)
 [Cropped_vol d]= imcrop(vol(:,:,75), [130 102 51 45]); 
 imshow(Cropped_vol)
+title("ROI")
 
 % Dimensioni del taglio 
 v1a=round(d(2)):(round(d(2))+length(Cropped_vol(:,1)));
@@ -38,10 +39,10 @@ VOI=vol(v1a,v2a,v3a);
 
 if (a==1)
     figure('Name',"Confronto funzione matlab e dimensioni ottenute")
-    subplot(2,1,1)
+    subplot(1,2,1)
     imshow(VOI(:,:,(12)));
     title('Immagine ricavata dalle dimensioni')
-    subplot(2,1,2)
+    subplot(1,2,2)
     imshow(Cropped_vol)
     title('Immagine ricavata dalla funzione')
 end
@@ -64,11 +65,15 @@ end
 
 %%
 % manual correction of white region
+figure()
+subplot(1,2,1)
+montage(VOI(:,:,23:25))
+subplot(1,2,2)
+
 MASK=VOI(:,:,23:25);
 MASK(MASK>240)=0;
 VOI(:,:,23:25)=MASK;
-figure()
-montage(VOI)
+montage(VOI(:,:,23:25))
 
 %Aumento del contrasto
 gamma=[0.5,1,1.5,2];
@@ -87,6 +92,13 @@ for z=1:length(gamma)
     title(['Gamma =' gammas(z)])
 end 
 % gamma --> 2 
+
+figure()
+subplot(1,2,1)
+imshow(VOI(:,:,12))
+subplot(1,2,2)
+imshow(vol_imadjusted(:,:,12))
+
 
 %%
 if (a==1)
@@ -120,7 +132,11 @@ for i=1:length(v3a)
 end
 
 figure()
-montage(vol_pn)
+subplot(1,2,1)
+imshow(vol_imadjusted(:,:,12))
+subplot(1,2,2)
+imshow(vol_pn(:,:,12))
+
 
 %%
 %Binarizzazione 
@@ -134,12 +150,20 @@ subplot(1,2,2)
 montage(bin_vol)
 title("AFTER BIN")
 
+figure()
+subplot(1,2,1)
+imshow(vol_pn(:,:,12))
+subplot(1,2,2)
+imshow(bin_vol(:,:,12))
+
+
 %%
 % Prendo i contorni 
 
 %vidfile = VideoWriter('testmovie.mp4','MPEG-4');
 %open(vidfile);
-figure()
+fh=figure('Units','normalized')
+fh.WindowState = 'maximized';
 j=0;
 for i=1:25
     j=j+1;
@@ -147,10 +171,27 @@ for i=1:25
     title("Contour of the tumor")
     hold on
     imcontour(bin_vol(:,:,i),5,'m');
-    %F(j) = getframe(gcf); 
-    %writeVideo(vidfile,F(j));
-    pause (1)
+    pause (0.5)
+    F(j) = getframe(gcf);
+    drawnow
+    
+    
 end 
+
+writerObj = VideoWriter('myVideo.avi');
+  writerObj.FrameRate = 5;
+  % set the seconds per image
+% open the video writer
+open(writerObj);
+% write the frames to the video
+for i=1:length(F)
+    % convert the image to a frame
+    frame = F(i) ;    
+    writeVideo(writerObj, frame);
+end
+% close the writer object
+close(writerObj);
+
 %close(vidfile)
 
 %%
@@ -201,10 +242,19 @@ VOI_s=vol_s(v1s,v2s,v3s);
 figure()
 montage(VOI_s)
 
+figure()
+subplot(1,2,1)
+imshow(vol_s(:,:,135))
+impixelinfo
+title("Isolate the tumor")
+subplot(1,2,2) 
+imshow(VOI_s(:,:,28))
+title("ROI")
+
 %% Istogramma 
 if(a==1)
     figure('Name', "Istogrammi")
-    for i=1:size(VOI_s,3)
+    for i=28
         subplot(2,1,1)
         imshow(VOI_s(:,:,i))
         colorbar
@@ -216,11 +266,15 @@ if(a==1)
     end
 end
 %%
+
+figure()
+subplot(1,2,1)
+montage(VOI_s(:,:,21:24))
+subplot(1,2,2)
 MASK=VOI_s(:,:,21:24);
 MASK(MASK>230)=0;
 VOI_s(:,:,21:24)=MASK;
-figure()
-montage(VOI_s)
+montage(VOI_s(:,:,21:24))
 
 %% Aumento del contrasto
 
@@ -230,6 +284,12 @@ montage(VOI_s)
 
  figure()
  montage(VOI_adj)
+
+ figure()
+subplot(1,2,1)
+imshow(VOI_s(:,:,28))
+subplot(1,2,2)
+imshow(VOI_adj(:,:,28))
 
 %% salt & pepper filtering
 for i=1:size(VOI_s,3)
@@ -241,6 +301,12 @@ subplot(2,1,1)
 montage(VOI_s)
 subplot(2,1,2)
 montage(VOI_pn)
+
+figure()
+subplot(1,2,1)
+imshow(VOI_adj(:,:,28))
+subplot(1,2,2)
+imshow(VOI_pn(:,:,28))
 
 %% histogramm 
 if(a==1)
@@ -267,16 +333,44 @@ title('Enhanced contrast')
 subplot(1,2,2)
 montage(bin_vol)
 
+figure()
+subplot(1,2,1)
+imshow(VOI_pn(:,:,28))
+subplot(1,2,2)
+imshow(bin_vol(:,:,28))
+
 %%
 %Prendo i contorni 
-figure()
+clear F
+fh=figure('Units','normalized')
+fh.WindowState = 'maximized';
+j=0;
 for i=1:size(bin_vol,3)
+    j=j+1;
     imshow(VOI_s(:,:,i))
+    title("Contours of the tumor")
     hold on
     imcontour(bin_vol(:,:,i),4,'m')
-    pause (1)
+    pause (0.5)
+    F(j) = getframe(gcf);
+    drawnow
+    
 end 
-title("Contours of the tumor")
+
+
+writerObj = VideoWriter('myVideo_sag.avi');
+  writerObj.FrameRate = 5;
+  % set the seconds per image
+% open the video writer
+open(writerObj);
+% write the frames to the video
+for i=1:length(F)
+    % convert the image to a frame
+    frame = F(i) ;    
+    writeVideo(writerObj, frame);
+end
+% close the writer object
+close(writerObj);
 
 %%
 num_pixel_s=[];
